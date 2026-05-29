@@ -5,18 +5,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ultimate OS Hub</title>
+  <link rel="manifest" href='data:application/json,{"name":"Ultimate OS Hub","short_name":"OS Hub","start_url":"./index.html","display":"fullscreen","background_color":"#000000","theme_color":"#000000","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2991/2991108.png","sizes":"512x512","type":"image/png"}]}'>
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    body { margin: 0; background-color: #000; }
-    /* Hide the bar by default in fullscreen and show on hover */
+    body { margin: 0; background-color: #000; overflow: hidden; }
     .fs-toolbar { transition: opacity 0.3s ease, transform 0.3s ease; }
-    .fullscreen .fs-toolbar { opacity: 0; pointer-events: none; }
-    .fullscreen .fs-toolbar:hover { opacity: 1; pointer-events: all; }
+    .fullscreen .fs-toolbar { opacity: 0; }
+    .fullscreen .fs-toolbar:hover { opacity: 1; }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
   </style>
 </head>
@@ -26,60 +25,82 @@
   <script type="text/babel">
     const { useState, useRef, useEffect } = React;
 
-    // (Icons and Database objects remain the same as previous version)
-    // ... [Icons & Database] ...
+    // Components
+    const Monitor = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>;
+    const Smartphone = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>;
+    const AlertTriangle = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>;
+    const ArrowLeft = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>;
 
-    // --- UPDATED APP COMPONENT ---
+    const OS_DATA = [
+      { id: 'desktop', title: 'Desktop OS', icon: <Monitor className="w-8 h-8" />, color: 'from-blue-500 to-indigo-600', items: [
+          { name: 'Windows 11', url: 'https://win11.blueedge.me/' },
+          { name: 'macOS Monterey', url: 'https://macos.vercel.app/' },
+          { name: 'Ubuntu Linux', url: 'https://vivek9patel.github.io/Ubuntu-OS/' },
+          { name: 'Windows 93', url: 'https://www.windows93.net/' }
+      ]},
+      { id: 'mobile', title: 'Mobile OS', icon: <Smartphone className="w-8 h-8" />, color: 'from-emerald-500 to-teal-600', items: [
+          { name: 'iOS 15', url: 'https://ios.vercel.app/' },
+          { name: 'Android OS', url: 'https://android-web-theta.vercel.app/' }
+      ]},
+      { id: 'pranks', title: 'Prank Screens', icon: <AlertTriangle className="w-8 h-8" />, color: 'from-amber-500 to-orange-600', items: [
+          { name: 'Win 10 Update', url: 'https://fakeupdate.net/win10u/' },
+          { name: 'Blue Screen', url: 'https://fakeupdate.net/win10u/bsod.html' }
+      ]}
+    ];
+
     function App() {
-      const [activeCategory, setActiveCategory] = useState(null);
-      const [activeEmu, setActiveEmu] = useState(null);
-      const [isFullscreen, setIsFullscreen] = useState(false);
+      const [category, setCategory] = useState(null);
+      const [emu, setEmu] = useState(null);
+      const [isFs, setIsFs] = useState(false);
       const containerRef = useRef(null);
 
       useEffect(() => {
-        const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
-        document.addEventListener('fullscreenchange', handleFullscreenChange);
-        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        const h = () => setIsFs(!!document.fullscreenElement);
+        document.addEventListener('fullscreenchange', h);
+        return () => document.removeEventListener('fullscreenchange', h);
       }, []);
 
-      const toggleFullscreen = async () => {
-        if (!document.fullscreenElement) {
-          if (containerRef.current) await containerRef.current.requestFullscreen();
-        } else {
-          if (document.exitFullscreen) await document.exitFullscreen();
-        }
-      };
-
-      if (!activeEmu) {
-        /* ... Keep your existing Home/Category screen logic here ... */
+      if (!emu) {
+        return (
+          <div className="min-h-screen bg-slate-950 text-white p-8">
+            {!category ? (
+              <div className="max-w-4xl mx-auto pt-20 text-center">
+                <h1 className="text-5xl font-bold mb-12">Ultimate OS Hub</h1>
+                <div className="grid md:grid-cols-3 gap-6">
+                  {OS_DATA.map(c => (
+                    <button key={c.id} onClick={() => setCategory(c)} className={`p-8 rounded-2xl bg-gradient-to-br ${c.color} hover:scale-105 transition-all`}>
+                      <div className="mb-4">{c.icon}</div>
+                      <h2 className="text-xl font-bold">{c.title}</h2>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="max-w-4xl mx-auto">
+                <button onClick={() => setCategory(null)} className="mb-8 flex items-center gap-2"><ArrowLeft /> Back</button>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {category.items.map(i => (
+                    <button key={i.url} onClick={() => setEmu(i)} className="p-6 bg-slate-900 rounded-xl hover:bg-slate-800 transition">{i.name}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
       }
 
       return (
-        <div className={`flex h-screen w-full bg-black ${isFullscreen ? 'fullscreen' : ''}`} ref={containerRef}>
-          {/* Sidebar */}
-          {!isFullscreen && (
-            <div className="flex flex-col w-72 bg-slate-900 border-r border-slate-800 shrink-0">
-               {/* Sidebar content */}
-            </div>
-          )}
-
-          {/* Emulator Container */}
-          <div className="flex-1 relative w-full h-full">
-            {/* The Toolbar with the new 'fs-toolbar' class */}
-            <div className="fs-toolbar absolute top-0 left-0 w-full z-50 flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-md border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <span className="text-white font-bold">{activeEmu.name}</span>
-              </div>
-              <button onClick={toggleFullscreen} className="bg-blue-600 text-white px-4 py-1 rounded">
-                {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-              </button>
-            </div>
-            
-            <iframe src={activeEmu.url} className="w-full h-full border-0" allowFullScreen></iframe>
+        <div className={`h-screen w-full bg-black ${isFs ? 'fullscreen' : ''}`} ref={containerRef}>
+          <div className="fs-toolbar absolute top-0 left-0 w-full z-50 flex justify-between p-4 bg-slate-900/80 backdrop-blur">
+            <button onClick={() => setEmu(null)} className="text-white"><ArrowLeft /></button>
+            <span className="font-bold">{emu.name}</span>
+            <button onClick={() => containerRef.current.requestFullscreen()} className="text-blue-400">Fullscreen</button>
           </div>
+          <iframe src={emu.url} className="w-full h-full border-0" allowFullScreen></iframe>
         </div>
       );
     }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
