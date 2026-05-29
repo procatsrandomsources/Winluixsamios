@@ -5,91 +5,86 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ultimate OS Hub</title>
-  <!-- Updated manifest to display as 'standalone' -->
-  <link rel="manifest" href='data:application/json,{"name":"Ultimate OS Hub","short_name":"OS Hub","start_url":"./index.html","display":"standalone","background_color":"#000000","theme_color":"#000000","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2991/2991108.png","sizes":"512x512","type":"image/png"}]}'>
   <script src="https://cdn.tailwindcss.com"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    body { margin: 0; background-color: #000; overflow: hidden; }
-    /* This handles hiding the bar */
-    .fs-toolbar { transition: opacity 0.3s ease; }
-    .is-app .fs-toolbar { opacity: 0; }
-    .is-app .fs-toolbar:hover { opacity: 1; }
+    body { background: #008080; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useRef, useEffect } = React;
+    const { useState } = React;
 
-    const Monitor = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>;
-    const Smartphone = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>;
-    const AlertTriangle = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>;
-    const ArrowLeft = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>;
+    // SVG Icons
+    const Win11Logo = () => <svg viewBox="0 0 100 100" className="w-10 h-10"><rect x="10" y="10" width="38" height="38" fill="#00a4ef" rx="2" /><rect x="52" y="10" width="38" height="38" fill="#00a4ef" rx="2" /><rect x="10" y="52" width="38" height="38" fill="#00a4ef" rx="2" /><rect x="52" y="52" width="38" height="38" fill="#00a4ef" rx="2" /></svg>;
+    const AppleLogo = () => <svg viewBox="0 0 100 100" className="w-10 h-10"><path d="M50.4,41.5c-0.2-10.6,8.7-15.8,9.1-16.1c-4.9-7.2-12.6-8.2-15.4-8.3c-6.6-0.7-12.8,3.9-16.1,3.9 c-3.4,0-8.5-3.8-14-3.8c-7.1,0-13.7,4.1-17.3,10.5C9.4,40.8,16.5,61,23.5,71.2c3.4,4.9,7.3,10.4,12.6,10.2 c5.1-0.2,7-3.3,13.2-3.3c6.1,0,7.9,3.3,13.3,3.2c5.5-0.1,8.8-5,12.2-9.9c3.9-5.7,5.5-11.2,5.6-11.5C80,60,50.6,48.7,50.4,41.5z" fill="#fff" /></svg>;
+    const UbuntuLogo = () => <svg viewBox="0 0 100 100" className="w-10 h-10"><circle cx="50" cy="50" r="45" fill="#E95420" /><circle cx="50" cy="50" r="25" fill="transparent" stroke="#fff" strokeWidth="8" /><circle cx="20" cy="50" r="8" fill="#fff" /><circle cx="65" cy="24" r="8" fill="#fff" /><circle cx="65" cy="76" r="8" fill="#fff" /></svg>;
+    const ChromeLogo = () => <svg viewBox="0 0 100 100" className="w-10 h-10"><circle cx="50" cy="50" r="45" fill="#fff" /><path d="M50 5 L89 72.5 L50 95 Z" fill="#F4B400" /><path d="M50 5 L11 72.5 L50 95 Z" fill="#DB4437" /><path d="M11 72.5 L89 72.5 L50 95 Z" fill="#0F9D58" /><circle cx="50" cy="50" r="20" fill="#4285F4" /></svg>;
+    const AndroidLogo = () => <svg viewBox="0 0 100 100" className="w-10 h-10"><path d="M20,55 v20 a10,10 0 0,0 10,10 h40 a10,10 0 0,0 10,-10 v-20 z" fill="#3DDC84" /><path d="M20,45 v-10 a30,30 0 0,1 60,0 v10 z" fill="#3DDC84" /></svg>;
+    const WarningLogo = () => <svg viewBox="0 0 100 100" className="w-10 h-10"><path d="M50 10 L95 85 L5 85 Z" fill="#F59E0B" /></svg>;
 
     const OS_DATA = [
-      { id: 'desktop', title: 'Desktop OS', icon: <Monitor className="w-8 h-8" />, color: 'from-blue-500 to-indigo-600', items: [
-          { name: 'Windows 11', url: 'https://win11.blueedge.me/' },
-          { name: 'macOS Monterey', url: 'https://macos.vercel.app/' },
-          { name: 'Ubuntu Linux', url: 'https://vivek9patel.github.io/Ubuntu-OS/' },
-          { name: 'Windows 93', url: 'https://www.windows93.net/' }
+      { id: 'desktop', title: 'Desktop', items: [
+          { name: 'Windows 11', url: 'https://win11.blueedge.me/', logo: <Win11Logo/> },
+          { name: 'macOS', url: 'https://macos.vercel.app/', logo: <AppleLogo/> },
+          { name: 'Ubuntu', url: 'https://vivek9patel.github.io/Ubuntu-OS/', logo: <UbuntuLogo/> },
+          { name: 'ChromeOS', url: 'https://os-chrome.vercel.app/', logo: <ChromeLogo/> },
+          { name: 'Win 93', url: 'https://www.windows93.net/', logo: <Win11Logo/> }
       ]},
-      { id: 'mobile', title: 'Mobile OS', icon: <Smartphone className="w-8 h-8" />, color: 'from-emerald-500 to-teal-600', items: [
-          { name: 'iOS 15', url: 'https://ios.vercel.app/' },
-          { name: 'Android OS', url: 'https://android-web-theta.vercel.app/' }
+      { id: 'mobile', title: 'Mobile', items: [
+          { name: 'iOS 15', url: 'https://ios.vercel.app/', logo: <AppleLogo/> },
+          { name: 'Android', url: 'https://android-web-theta.vercel.app/', logo: <AndroidLogo/> }
       ]},
-      { id: 'pranks', title: 'Prank Screens', icon: <AlertTriangle className="w-8 h-8" />, color: 'from-amber-500 to-orange-600', items: [
-          { name: 'Win 10 Update', url: 'https://fakeupdate.net/win10u/' },
-          { name: 'Blue Screen', url: 'https://fakeupdate.net/win10u/bsod.html' }
+      { id: 'pranks', title: 'Pranks', items: [
+          { name: 'Win 10 Update', url: 'https://fakeupdate.net/win10u/', logo: <WarningLogo/> },
+          { name: 'Blue Screen', url: 'https://fakeupdate.net/win10u/bsod.html', logo: <WarningLogo/> }
       ]}
     ];
 
     function App() {
       const [category, setCategory] = useState(null);
       const [emu, setEmu] = useState(null);
-      // Detect if running as standalone app
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
       if (!emu) {
         return (
-          <div className="min-h-screen bg-slate-950 text-white p-8">
-            {!category ? (
-              <div className="max-w-4xl mx-auto pt-20 text-center">
-                <h1 className="text-5xl font-bold mb-12">Ultimate OS Hub</h1>
-                <div className="grid md:grid-cols-3 gap-6">
-                  {OS_DATA.map(c => (
-                    <button key={c.id} onClick={() => setCategory(c)} className={`p-8 rounded-2xl bg-gradient-to-br ${c.color} hover:scale-105 transition-all`}>
-                      <div className="mb-4">{c.icon}</div>
-                      <h2 className="text-xl font-bold">{c.title}</h2>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="max-w-4xl mx-auto">
-                <button onClick={() => setCategory(null)} className="mb-8 flex items-center gap-2"><ArrowLeft /> Back</button>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {category.items.map(i => (
-                    <button key={i.url} onClick={() => setEmu(i)} className="p-6 bg-slate-900 rounded-xl hover:bg-slate-800 transition">{i.name}</button>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div className="h-screen p-4">
+            <div className="grid grid-cols-4 gap-6">
+              {!category ? OS_DATA.map(c => (
+                <button key={c.id} onClick={() => setCategory(c)} className="flex flex-col items-center p-4 hover:bg-white/20 rounded">
+                  <div className="w-16 h-16 bg-yellow-400 border-2 border-yellow-600 rounded flex items-center justify-center text-2xl font-bold">📁</div>
+                  <span className="text-white font-bold text-sm mt-1">{c.title}</span>
+                </button>
+              )) : (
+                <button onClick={() => setCategory(null)} className="flex flex-col items-center p-4 hover:bg-white/20 rounded">
+                  <div className="w-16 h-16 bg-gray-500 rounded flex items-center justify-center">⬅️</div>
+                  <span className="text-white font-bold text-sm">Back</span>
+                </button>
+              )}
+              {category && category.items.map(i => (
+                <button key={i.url} onClick={() => setEmu(i)} className="flex flex-col items-center p-4 hover:bg-white/20 rounded">
+                  <div className="w-16 h-16 bg-blue-700 border-2 border-blue-400 rounded flex items-center justify-center">{i.logo}</div>
+                  <span className="text-white font-bold text-xs mt-1 text-center">{i.name}</span>
+                </button>
+              ))}
+            </div>
           </div>
         );
       }
 
       return (
-        <div className={`h-screen w-full bg-black ${isStandalone ? 'is-app' : ''}`}>
-          <div className="fs-toolbar absolute top-0 left-0 w-full z-50 flex justify-between p-4 bg-slate-900/80 backdrop-blur text-white">
-            <button onClick={() => setEmu(null)} className="flex items-center"><ArrowLeft /> Exit</button>
-            <span className="font-bold">{emu.name}</span>
-            <div className="w-16"></div>
+        <div className="h-screen w-full flex flex-col bg-gray-200">
+          <div className="bg-[#ece9d8] border-b-2 border-white p-2 flex justify-between items-center font-bold">
+            <span>{emu.name}</span>
+            <div className="flex gap-2">
+              <a href={emu.url} target="_blank" className="border-2 border-black px-2 bg-gray-300 text-xs">Launch in New Tab</a>
+              <button onClick={() => setEmu(null)} className="border-2 border-black px-2 bg-gray-300">X</button>
+            </div>
           </div>
-          <iframe src={emu.url} className="w-full h-full border-0" allowFullScreen></iframe>
+          <iframe src={emu.url} className="flex-1 w-full border-0 bg-white" title="OS"></iframe>
         </div>
       );
     }
