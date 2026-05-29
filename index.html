@@ -49,6 +49,14 @@
       const [category, setCategory] = useState(null);
       const [emu, setEmu] = useState(null);
 
+      const goFullscreen = () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => alert(`Error: ${err.message}`));
+        } else {
+          document.exitFullscreen();
+        }
+      };
+
       if (!emu) {
         return (
           <div className="h-screen p-4">
@@ -80,6 +88,7 @@
           <div className="bg-[#ece9d8] border-b-2 border-white p-2 flex justify-between items-center font-bold">
             <span>{emu.name}</span>
             <div className="flex gap-2">
+              <button onClick={goFullscreen} className="border-2 border-black px-2 bg-gray-300 text-xs">Fullscreen</button>
               <a href={emu.url} target="_blank" className="border-2 border-black px-2 bg-gray-300 text-xs">Launch in New Tab</a>
               <button onClick={() => setEmu(null)} className="border-2 border-black px-2 bg-gray-300">X</button>
             </div>
