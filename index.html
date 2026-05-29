@@ -11,6 +11,9 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     body { background: #008080; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; }
+    /* Hide toolbar when fullscreen */
+    :fullscreen .fs-toolbar { display: none; }
+    :fullscreen iframe { height: 100vh; }
   </style>
 </head>
 <body>
@@ -51,7 +54,7 @@
 
       const goFullscreen = () => {
         if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(err => alert(`Error: ${err.message}`));
+          document.documentElement.requestFullscreen();
         } else {
           document.exitFullscreen();
         }
@@ -85,7 +88,7 @@
 
       return (
         <div className="h-screen w-full flex flex-col bg-gray-200">
-          <div className="bg-[#ece9d8] border-b-2 border-white p-2 flex justify-between items-center font-bold">
+          <div className="fs-toolbar bg-[#ece9d8] border-b-2 border-white p-2 flex justify-between items-center font-bold">
             <span>{emu.name}</span>
             <div className="flex gap-2">
               <button onClick={goFullscreen} className="border-2 border-black px-2 bg-gray-300 text-xs">Fullscreen</button>
